@@ -102,14 +102,19 @@ function displayProducts(products){
 		var productBox = document.getElementById("right-bar")
 		productList = products.query.results.results.img;
 		
-		//productNameList = products.query.results.results.a;
+		productNameList = products.query.results.results.a;
+		
 		for (i=0; i<productList.length; i++) 
 		{
 			
 			var imageSource = productList[i].src;
-			//console.log(imageSource);
 			product[imageSource] = "false";
 			
+			
+		}
+		for (i=0; i<productNameList.length; i++)
+		{
+			var productName = productNameList[i].content;
 			
 		}
 		
@@ -117,6 +122,7 @@ function displayProducts(products){
 		{
 			var productWrapper = document.createElement("div");
 			productWrapper.classList.add("product-image-conatiner");
+			productWrapper.textContent = productName;
 			productBox.appendChild(productWrapper);
 			var productItem =	document.createElement("img");
 			productItem.setAttribute("src",imageSource);
@@ -173,6 +179,7 @@ body {
 	width: 48%;
 	border: 1px solid #ccc;
 	word-wrap: break-word;
+	border-radius: 3px;
 }
 .status {
 	position: fixed;
@@ -199,6 +206,7 @@ body {
 	width: 50%;
 	border: 1px solid #ccc;
 	margin-top: 100px;
+	border-radius: 3px;
 }
 
 .product-image-conatiner {
