@@ -17,7 +17,7 @@ var rproduct = {};
 function display(data)
 {	
 	
-	if (data.query.results.results !== null)
+	if (data.query.results !== null && data.query.results.results !== null)
 	{
 		var list = document.getElementById("links");
 		var url = data.query.results.results.a;
@@ -33,58 +33,51 @@ function display(data)
 				
 			var anchor = document.createElement("a");
 			anchor.setAttribute("href", address);
-			if(undefined !== urlList[anchor.href])
+            $(anchor).attr("href", $(anchor).attr("href"));
+
+            var currentUrl = $(anchor).prop('href');
+            if(undefined !== urlList[currentUrl])
 			{
 				continue;	
 			}
 			
-			if ((anchor.protocol != "http:") && (anchor.protocol != "https:"))
+			if ( ($(anchor).prop('protocol') != "http:") && ($(anchor).prop('protocol') != "https:"))
 			{
 				continue;
 			}
-			if (anchor.hostname != "newsmartwave.net")
+
+			if ($(anchor).prop('hostname') != "newsmartwave.net")
 			{
 				continue;
 			}
 			var startIndex = anchor.href.length - 4;
-			if (anchor.href.substr(startIndex,4) == ".jpg")
+			if (currentUrl.substr(startIndex,4) == ".jpg")
 			{
 				continue;
 			}
-			
-			
-			//console.log(anchor.protocol);
-			//console.log(anchor.hostname);
-			
-			urlList[anchor.href] = false;
+
+			urlList[currentUrl] = false;
+
 			var listitem = document.createElement("li");
-			listitem.textContent = anchor.href;
+			listitem.textContent = currentUrl;
 		
 			list.appendChild(listitem);	
 		}
 	}
-	
-	/*for (var pname in urlList)
-	{
-		var listitem = document.createElement("li");
-		listitem.textContent = pname;
-	
-		list.appendChild(listitem);	
-	}*/
-	
+
 	var keys = Object.keys(urlList);
 	if (currentIndex === keys.length - 1)
 	{
 		$(".status").hide();
 		return;
 	}
-	crawlUrl(keys[currentIndex]);
-	currentIndex++;
-	
+
+    currentIndex++;
+    crawlUrl(keys[currentIndex]);
+
 }
 
 function crawlUrl(url) {
-	
 	var statusDiv = document.getElementById("url");
 	statusDiv.textContent = url;
 	url = encodeURI(url);
@@ -94,8 +87,10 @@ function crawlUrl(url) {
 		dataType: "jsonp",
 		async: false,
 		jsonpCallback: 'display',
-		contentType: "application/json",
+		contentType: "application/json"
 	});
+    crawlProducts(url);
+    crawlRelatedProducts(url);
 }
 
 
@@ -138,10 +133,10 @@ function displayProducts(products){
 	}
 }
 
-function crawlProducts() {
+function crawlProducts(url) {
 	
 	$.ajax({
-		url:"https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20data.html.cssselect%20where%20url%3D%22http%3A%2F%2Fnewsmartwave.net%2Fhtml%2Fvenedor%2Fgreen%2Findex.html%22%20and%20css%3D%22.item-hover%20.item-image%2C.item-hover%20.item-name%20a%22&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
+		url:"https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20data.html.cssselect%20where%20url%3D%22" + encodeURI(url) +"%22%20and%20css%3D%22.item-hover%20.item-image%2C.item-hover%20.item-name%20a%22&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
 		dataType: "jsonp",
 		async: false,
 		jsonpCallback: 'displayProducts',
@@ -150,46 +145,42 @@ function crawlProducts() {
 }
 
 function displayRelatedProducts(rproducts) {
-	if (rproducts.query.results.results !== null)
+	if (rproducts.query.results !== null && rproducts.query.results.results !== null)
 	{
-	var productBox = document.getElementById("right-bar")
-	var relatedProducts = rproducts.query.results.results.img;
-	var relatedProductsName = rproducts.query.results.results.a;
-	for (i=0; i<relatedProducts.length; i++)
-	{
-		var imageSource = relatedProducts[i].src;
-		var rproductName = relatedProductsName[i].content;	
-		rproduct[imageSource] = {
-			name: rproductName,
-			url: relatedProductsName[i].href
-		};	
-	}
-		
-	for ( imageSource in rproduct)
-	{
-		var productWrapper = document.createElement("div");
-		productWrapper.classList.add("product-image-container");
-		productWrapper.textContent = rproduct[imageSource].name;
-		var productLink = document.createElement("a");
-		productLink.setAttribute("href",rproduct[imageSource].url);
-		productWrapper.appendChild(productLink);
-		
-		
-		
-		productBox.appendChild(productWrapper);
-		var productItem = document.createElement("img");
-		productItem.setAttribute("src",imageSource);
-		productItem.classList.add("product-image");
-		productLink.appendChild(productItem);
-			
-	}
-	}
+        var productBox = document.getElementById("right-bar")
+        var relatedProducts = rproducts.query.results.results.img;
+        var relatedProductsName = rproducts.query.results.results.a;
+        for (i=0; i<relatedProducts.length; i++)
+        {
+            var imageSource = relatedProducts[i].src;
+            var rproductName = relatedProductsName[i].content;
+            rproduct[imageSource] = {
+                name: rproductName,
+                url: relatedProductsName[i].href
+            };
+        }
 
+        for ( imageSource in rproduct)
+        {
+            var productWrapper = document.createElement("div");
+            productWrapper.classList.add("product-image-container");
+            productWrapper.textContent = rproduct[imageSource].name;
+            var productLink = document.createElement("a");
+            productLink.setAttribute("href",rproduct[imageSource].url);
+            productWrapper.appendChild(productLink);
+            productBox.appendChild(productWrapper);
+            var productItem = document.createElement("img");
+            productItem.setAttribute("src",imageSource);
+            productItem.classList.add("product-image");
+            productLink.appendChild(productItem);
+
+        }
+	}
 }
 
-function crawlRelatedProducts() {
+function crawlRelatedProducts(url) {
 	$.ajax({
-		url:"https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20data.html.cssselect%20where%20url%3D%22http%3A%2F%2Fnewsmartwave.net%2Fhtml%2Fvenedor%2Fgreen%2Fproduct.html%23.U_uaUMWSw_w%22%20and%20css%3D%22.related-product%20img%2C.related-product%20a%22&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
+		url:"https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20data.html.cssselect%20where%20url%3D%22"+ encodeURI(url) + "%22%20and%20css%3D%22.related-product%20img%2C.related-product%20a%22&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
 		dataType: "jsonp",
 		async: false,
 		jsonpCallback: 'displayRelatedProducts',
@@ -199,10 +190,9 @@ function crawlRelatedProducts() {
 
 
 window.addEventListener("load",initialise);
+
 function initialise() {
-crawlUrl("http://newsmartwave.net/html/venedor/green/index.html");
-crawlProducts();
-crawlRelatedProducts();
+    crawlUrl("http://newsmartwave.net/html/venedor/green/index.html");
 }
 
 
@@ -211,7 +201,7 @@ crawlRelatedProducts();
 
 <style>
 
-@media screen and (minwidth: 1243px)
+@media screen and (min-width: 1243px)
 {
 	.bar{
 		width: 30%;
@@ -323,7 +313,7 @@ body {
 </header>
 <div class="container">
 	<div class="bar">
-    	<h3>Crawled links</h3>
+    	<h3>Links to be crawled:</h3>
         <ul id="links">
         </ul>
 	</div>
