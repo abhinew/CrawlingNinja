@@ -111,24 +111,27 @@ function displayProducts(products){
 		{
 			
 			var imageSource = productList[i].src;
-			product[imageSource] = "false";	
-		}
-		for (i=0; i<productNameList.length; i++)
-		{
 			var productName = productNameList[i].content;
-			
+			product[imageSource] = {
+					name: productName,
+					url: productNameList[i].href	
+			};	
 		}
 		
 		for ( imageSource in product)
 		{
 			var productWrapper = document.createElement("div");
 			productWrapper.classList.add("product-image-conatiner");
-			productWrapper.textContent = productName;
+			productWrapper.textContent = product[imageSource].name;
+			var productLink = document.createElement("a");
+			productLink.classList.add("product-name");	
+			productLink.setAttribute("href",product[imageSource].url)
+			productWrapper.appendChild(productLink);
 			productBox.appendChild(productWrapper);
 			var productItem =	document.createElement("img");
 			productItem.setAttribute("src",imageSource);
 			productItem.classList.add("product-image");
-			productWrapper.appendChild(productItem);
+			productLink.appendChild(productItem);
 				
 		}
 	}
@@ -145,9 +148,6 @@ function crawlProducts() {
 	});
 }
 
-
-
-
 function displayRelatedProducts(rproducts) {
 	if (rproducts.query.results.results !== null)
 	{
@@ -156,25 +156,30 @@ function displayRelatedProducts(rproducts) {
 	var relatedProductsName = rproducts.query.results.results.a;
 	for (i=0; i<relatedProducts.length; i++)
 	{
-		var imageSource = relatedProducts[i].src;	
-		rproduct[imageSource] = "false";	
+		var imageSource = relatedProducts[i].src;
+		var rproductName = relatedProductsName[i].content;	
+		rproduct[imageSource] = {
+			name: rproductName,
+			url: relatedProductsName[i].href
+		};	
 	}
-	for (i=0; i<relatedProductsName.length; i++)
-	{
-		var rproductName = relatedProductsName[i].content;
 		
-	}
-	
 	for ( imageSource in rproduct)
 	{
 		var productWrapper = document.createElement("div");
 		productWrapper.classList.add("product-image-conatiner");
-		productWrapper.textContent = rproductName;
+		productWrapper.textContent = rproduct[imageSource].name;
+		var productLink = document.createElement("a");
+		productLink.setAttribute("href",rproduct[imageSource].url);
+		productWrapper.appendChild(productLink);
+		
+		
+		
 		productBox.appendChild(productWrapper);
 		var productItem = document.createElement("img");
 		productItem.setAttribute("src",imageSource);
 		productItem.classList.add("product-image");
-		productWrapper.appendChild(productItem);
+		productLink.appendChild(productItem);
 			
 	}
 	}
@@ -190,6 +195,7 @@ function crawlRelatedProducts() {
 		contentType: "application/json"
 	});
 }
+
 
 window.addEventListener("load",initialise);
 function initialise() {
@@ -235,7 +241,7 @@ body {
 	right: 10px;
 	width: 47%;
 	border: 1px solid #ccc;
-	background-color: #E5E3E3;
+	background-color: #C4CC00;
 	border-radius: 3px;
 	padding: 15px 15px;
 	
@@ -247,7 +253,9 @@ body {
 	display: block;
 }
 	
-
+#url {
+	color: #ffffff;
+}
 #right-bar {
 	
 	float: right;
@@ -257,11 +265,26 @@ body {
 	border-radius: 3px;
 }
 
+#right-bar:after {
+	content: '';
+	clear: both;
+	display: block;
+}
 .product-image-conatiner {
 	float: left;
 	width: 200px;
-	height: 200px;
+	height: 150px;
 	padding: 10px;
+	text-align: center;
+}
+
+.product-image-container:after {
+	content: '';
+	clear: both;
+	display: block;
+}
+.product-name {
+	height: inherit;
 }
 
 .product-image {
