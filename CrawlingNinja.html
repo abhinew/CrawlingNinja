@@ -33,7 +33,7 @@ function display(data)
 				
 			var anchor = document.createElement("a");
 			anchor.setAttribute("href", address);
-            $(anchor).attr("href", $(anchor).attr("href"));
+            $(anchor).attr("href", $(anchor).prop("href"));
 
             var currentUrl = $(anchor).prop('href');
             if(undefined !== urlList[currentUrl])
